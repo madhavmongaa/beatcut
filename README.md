@@ -1,5 +1,7 @@
 # beatcut
 
+Project page: https://madhavmongaa.github.io/beatcut/
+
 Takes a folder of video clips and one audio track, and outputs a single video cut on the beat.
 Everything runs locally: librosa finds the beats, ffmpeg does the video work.
 

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>beatcut</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header>
+  <div class="mark">beat<i></i>cut</div>
+  <div class="tempo"><span id="bpm">–</span><small>bpm</small></div>
+  <div class="actions">
+    <button id="btn-preview" disabled>Preview</button>
+    <button id="btn-export" class="primary" disabled>Export</button>
+  </div>
+</header>
+
+<main>
+  <section id="bin">
+    <div class="head">
+      <h2>Clips <span id="clip-count"></span></h2>
+      <button class="text" id="add-clips">Add</button>
+    </div>
+    <ul id="clips"></ul>
+    <p class="hint" id="clips-empty">Drop video clips anywhere in this window.</p>
+
+    <div class="head">
+      <h2>Track</h2>
+      <button class="text" id="add-track">Choose</button>
+    </div>
+    <div id="track" class="hint">Drop one audio file.</div>
+
+    <button class="text" id="new-project">New project</button>
+  </section>
+
+  <section id="monitor">
+    <div id="screen" data-aspect="9:16">
+      <video id="video" playsinline preload="auto"></video>
+      <p id="screen-note">Preview appears here</p>
+      <div id="progress"><span></span></div>
+    </div>
+  </section>
+
+  <section id="settings">
+    <div class="group">
+      <label class="field">
+        <span>Length</span>
+        <div class="num"><input id="duration" type="number" min="1" step="1" value="30"><em>sec</em></div>
+      </label>
+      <div class="field">
+        <span>Cut every</span>
+        <div class="seg" id="every">
+          <button data-v="1">1</button><button data-v="2" class="on">2</button><button data-v="4">4</button><button data-v="8">8</button>
+          <em>beats</em>
+        </div>
+      </div>
+      <div class="field">
+        <span>Meter</span>
+        <div class="seg wide" id="meter" title="Beats per bar. Sets where downbeats fall.">
+          <button data-v="3">3/4</button><button data-v="4" class="on">4/4</button><button data-v="6">6/8</button>
+        </div>
+      </div>
+      <div class="field">
+        <span>Shape</span>
+        <div class="seg shapes" id="aspect">
+          <button data-v="9:16" class="on" title="Vertical 9:16"><i style="width:9px;height:16px"></i></button>
+          <button data-v="1:1" title="Square 1:1"><i style="width:13px;height:13px"></i></button>
+          <button data-v="16:9" title="Landscape 16:9"><i style="width:16px;height:9px"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="field">
+        <span>Pick by</span>
+        <div class="seg wide" id="pick" title="Motion takes the most change. Sharp also avoids blur and camera whips.">
+          <button data-v="motion" class="on">Motion</button><button data-v="sharp">Sharp</button>
+        </div>
+      </div>
+      <div class="field">
+        <span>Crop</span>
+        <div class="seg wide" id="crop" title="Centre crop, or follow where the action is in each shot.">
+          <button data-v="centre" class="on">Centre</button><button data-v="motion">Follow</button>
+        </div>
+      </div>
+      <button class="check" id="match" aria-pressed="false" title="Strongest footage on the loudest slots, calm footage on quiet ones."><i></i>Match shots to energy</button>
+      <button class="check" id="trim" aria-pressed="false" title="Avoid the first and last half second of every clip."><i></i>Skip clip edges</button>
+    </div>
+
+    <div class="group">
+      <label class="field">
+        <span>Seed</span>
+        <div class="num"><input id="seed" type="number" min="0" step="1"><button class="text" id="reroll" type="button">Shuffle</button></div>
+      </label>
+      <button class="check" id="fast" aria-pressed="false" title="Encode with the Mac's hardware encoder, which is faster."><i></i>Fast export</button>
+      <button class="text" id="reset-cuts" disabled>Reset cuts to the beat grid</button>
+    </div>
+  </section>
+</main>
+
+<section id="timeline">
+  <div class="transport">
+    <button id="play" disabled aria-label="Play"><svg viewBox="0 0 12 12" width="12" height="12"><path id="play-icon" d="M2 1l9 5-9 5z"/></svg></button>
+    <div class="clock"><span id="now">00:00.00</span><small id="total">/ 00:00.00</small></div>
+    <div class="from">from <span id="from">00:00.00</span><button class="text" id="loudest" disabled>Jump to loudest part</button></div>
+    <p class="keys">Drag a marker to move a cut. Double-click to add or remove. Click a shot to swap it.</p>
+  </div>
+  <div id="lane">
+    <canvas id="overview" title="The whole track. Drag the window to choose which part to use."></canvas>
+    <canvas id="wave"></canvas>
+    <div id="strip"></div>
+    <div id="playhead"></div>
+    <p id="lane-empty">Add a track to see its beats.</p>
+    <div id="picker" hidden>
+      <div class="picker-head"><span id="picker-title"></span><button class="text" id="picker-lock"></button></div>
+      <div id="picker-list"></div>
+    </div>
+  </div>
+</section>
+
+<footer id="status"></footer>
+
+<div id="drop"><p>Drop to add</p></div>
+<input id="file-clips" type="file" accept="video/*" multiple hidden>
+<input id="file-track" type="file" accept="audio/*" hidden>
+<audio id="audio" preload="auto"></audio>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

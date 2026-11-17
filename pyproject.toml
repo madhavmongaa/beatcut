@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "beatcut"
+version = "0.1.0"
+description = "Cut a folder of video clips to the beat of an audio track."
+requires-python = ">=3.12"
+dependencies = [
+    "librosa>=0.10",
+    "numpy>=1.26",
+    "starlette>=0.40",
+    "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[project.scripts]
+beatcut = "beatcut.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+beatcut = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

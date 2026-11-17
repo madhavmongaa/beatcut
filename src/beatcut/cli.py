@@ -131,7 +131,11 @@ def _ui(argv: list[str]) -> int:
     args = parser.parse_args(argv)
     from . import web
 
-    web.serve(args.port, args.project, open_browser=not args.no_open)
+    try:
+        web.serve(args.port, args.project, open_browser=not args.no_open)
+    except (OSError, ffutil.FFmpegError) as err:
+        print(f"beatcut: {err}", file=sys.stderr)
+        return 1
     return 0
 
 

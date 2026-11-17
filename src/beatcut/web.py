@@ -6,6 +6,7 @@ import hashlib
 import json
 import secrets
 import shutil
+import socket
 import threading
 import time
 from pathlib import Path
@@ -386,16 +387,37 @@ def create_app(root: Path) -> Starlette:
     return Starlette(routes=routes, middleware=middleware)
 
 
+def _bind(port: int, tries: int = 20) -> socket.socket:
+    """Listen on `port`, or the next free port after it when that one is taken."""
+    for candidate in range(port, port + tries):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.bind(("127.0.0.1", candidate))
+        except OSError:
+            sock.close()
+            continue
+        return sock
+    raise OSError(f"Ports {port} to {port + tries - 1} are all in use. Pick another with --port.")
+
+
 def serve(port: int, project: Path, open_browser: bool = True) -> None:
     import uvicorn
 
     ffutil.require()
-    url = f"http://127.0.0.1:{port}"
-    print(f"beatcut UI running at {url}  (Ctrl+C to stop)")
-    print(f"Project folder: {project}")
+    sock = _bind(port)
+    actual = sock.getsockname()[1]
+    if actual != port:
+        print(f"Port {port} is in use (is beatcut ui already open in another window?), using {actual} instead.", flush=True)
+    url = f"http://127.0.0.1:{actual}"
     app = create_app(project)
+    print(f"beatcut UI running at {url}  (Ctrl+C to stop)", flush=True)
+    print(f"Project folder: {project}", flush=True)
     if open_browser:
         import webbrowser
 
         threading.Timer(0.8, webbrowser.open, [url]).start()
-    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
+    server = uvicorn.Server(uvicorn.Config(app, log_level="warning"))
+    try:
+        server.run(sockets=[sock])
+    except KeyboardInterrupt:
+        pass

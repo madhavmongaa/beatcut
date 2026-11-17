@@ -50,7 +50,13 @@ async function api(method, url, body) {
     opts.body = JSON.stringify(body);
     opts.headers = { "Content-Type": "application/json" };
   }
-  const res = await fetch(url, opts);
+  let res;
+  try {
+    res = await fetch(url, opts);
+  } catch {
+    // The browser only says "Load failed" or "Failed to fetch" when the server is gone.
+    throw new Error("Lost connection to beatcut. Run `beatcut ui` in Terminal again, then reload this page.");
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
   return data;
